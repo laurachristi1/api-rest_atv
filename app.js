@@ -1,9 +1,9 @@
 import express from "express";
 
 const app = express();
-app.use(express.json())
+app.use(express.json());
 
-app.get("/", (req, res) =>{
+app.get("/", (req, res) => {
     res.status(200).send("Bolos da Lau Lau");
 });
 
@@ -50,47 +50,49 @@ const bolos = [
         nome_produto: "Bolo de Morango",
         valor: "R$ 28,00",
     },
-    
-]
+];
 
-
-function bolos(id){
-    return bolos.findIndex(bolos => {
-        return bolos.id === Number (id);
-    })
+function findBoloIndex(id) {
+    return bolos.findIndex(bolo => bolo.id === Number(id));
 }
 
 app.route("/bolos")
-    .get((req, res) =>{
+    .get((req, res) => {
         res.status(200).json(bolos);
     })
-    .post((req, res)=> {
+    .post((req, res) => {
         bolos.push(req.body);
-        res.status(201).send("Adicionado com sucesso")
-    })
-
+        res.status(201).send("Adicionado com sucesso");
+    });
 
 app.route("/bolos/:id")
     .get((req, res) => {
-        const id = bolos(req.params.id)
-        res.status(200).json(bolos[id]);
+        const id = findBoloIndex(req.params.id);
+        if (id !== -1) {
+            res.status(200).json(bolos[id]);
+        } else {
+            res.status(404).send("Bolo não encontrado!");
+        }
     })
     .put((req, res) => {
-        const id = bolos (req.params.id);
-        bolos[id].descricao = req.body.descricao;
-        bolos[id].nome_produto = req.body.nome_produto;
-        bolos[id].valor = req.body.valor;
-        res.status(200).json(bolos[id]);
-    })
-    app.delete((req, res) => {
-        const id = bolos (req.params.id);
-        if(bolos[id]){
-           bolos.splice(id, 1); //splice- trabalha com array e remove
-           res.status(200).send("Bolo foi removido com sucesso!");
-        }else{
-           res.status(404).send("Bolo não encontrado! Procura direito");
+        const id = findBoloIndex(req.params.id);
+        if (id !== -1) {
+            bolos[id].descricao = req.body.descricao;
+            bolos[id].nome_produto = req.body.nome_produto;
+            bolos[id].valor = req.body.valor;
+            res.status(200).json(bolos[id]);
+        } else {
+            res.status(404).send("Bolo não encontrado!");
         }
-   
-       })
+    })
+    .delete((req, res) => {
+        const id = findBoloIndex(req.params.id);
+        if (id !== -1) {
+            bolos.splice(id, 1);
+            res.status(200).send("Bolo foi removido com sucesso!");
+        } else {
+            res.status(404).send("Bolo não encontrado! Procura direito");
+        }
+    });
 
 export default app;
